@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ToDo API Client Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.0.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.debug.js"></script>
+</head>
+<body>
+<div class="navbar">
+    <div class="navbar-inner">
+
+        <a class="brand" href="#">
+            <img alt="Brand" src="verdi64icon.png"><b> VERÐI V2 API Client</b></a>
+
+    </div>
+</div>
+<div id="main" class="container">
+    <table class="table table-striped">
+        <tr><td style="width: 1px;"></td><td><b>Items</b></td><td><b>Prices</b></td><td><b>Options</b></td></tr>
+        <!-- ko foreach: items -->
+        <tr>
+            <td>
+                <span data-bind="visible: checked" class="label label-success">Checked</span>
+                <span data-bind="visible: !checked()" class="label label-important">Not Checked</span>
+            </td>
+            <td><p><b data-bind="text: name"></b></p>
+                <p title="unit" class="label label-info" data-bind="text: $parent.unitToString(unit())"></p>
+                <p title="description" data-bind="text: description" class="label label-info"></p>
+                <p title="barcode" data-bind="text: barcode" class="label label-info"></p>
+                <p title="amount" data-bind="text: amount" class="label label-info"></p>
+                <p title="group" data-bind="text: group" class="label label-info"></p>
+                <p title="uri" data-bind="text: uri" class="label label-info"></p>
+                <p title="vnr" data-bind="text: vnr" class="label label-info"></p>
+            </td>
+            <td data-bind="foreach: stores" >
+                <p><span data-bind="text: $root.storeIdToString(store_id) + ' ' + price_per_unit" class="label label-info"></span><!--<span data-bind="text: price_per_unit"></span>
+                    <span data-bind="text: $root.unitToString($parent.unit())" class="label label-info"></span>--></p>
+            </td>
+            <td>
+                <button data-bind="click: $parent.beginEdit" class="btn">Edit</button>
+                <button data-bind="click: $parent.beginPriceEdit" class="btn">Price</button>
+                <button data-bind="click: $parent.remove" class="btn">Delete</button>
+                    <span data-bind="visible: checked">
+                        <button data-bind="click: $parent.markUnchecked" class="btn">Uncheck</button>
+                    </span>
+                    <span data-bind="visible: !checked()">
+                        <button data-bind="click: $parent.markchecked" class="btn">Check</button>
+                    </span>
+            </td>
+        </tr>
+        <!-- /ko -->
+    </table>
+    <button data-bind="click: beginAdd" class="btn">Add Item</button>
+
+</div>
+<div id="add" class="modal hide fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="addDialogLabel">Add Item</h3>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label" for="inputItem">Item</label>
+                <div class="controls">
+                    <input data-bind="value: name" type="text" id="inputItem" placeholder="Item name" style="width: 150px;">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputDescription">Description</label>
+                <div class="controls">
+                    <input data-bind="value: description" type="text" id="inputDescription" placeholder="Description" style="width: 300px;">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputBarcode">Barcode</label>
+                <div class="controls">
+                    <input data-bind="value: barcode" type="number" id="inputBarcode" placeholder="Barcode" style="width: 300px;">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputUnit">Unit</label>
+                <div class="controls">
+                    <select data-bind="options: $root.availableUnits, value: unit, optionsText: 'unitName', optionsValue: 'val'" style="width: 300px;"></select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputAmount">Amount</label>
+                <div class="controls">
+                    <input data-bind="value: amount" type="text" id="inputAmount" placeholder="Amount" style="width: 300px;">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputGroup">Group</label>
+                <div class="controls">
+                    <!--<input data-bind="value: group" type="text" id="inputGroup" placeholder="Group" style="width: 300px;">-->
+                    <select data-bind="options: $root.availableGroups, value: group, optionsText: 'groupName', optionsValue: 'groupName'" style="width: 300px;"></select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputVnr">Vnr</label>
+                <div class="controls">
+                    <input data-bind="value: vnr" type="text" id="inputVnr" placeholder="Vnr" style="width: 300px;">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button data-bind="click: addTask" class="btn btn-primary">Add Task</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+    </div>
+</div>
+<div id="edit" class="modal hide fade" tabindex="=1" role="dialog" aria-labelledby="editDialogLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="editDialogLabel">Edit Item</h3>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label" for="inputItem">Item</label>
+                <div class="controls">
+                    <input data-bind="value: name" type="text" id="inputItem" placeholder="Item name" style="width: 150px;">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputDescription">Description</label>
+                <div class="controls">
+                    <input data-bind="value: description" type="text" id="inputDescription" placeholder="Description" style="width: 300px;">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputBarcode">Barcode</label>
+                <div class="controls">
+                    <input data-bind="value: barcode" type="number" id="inputBarcode" placeholder="Barcode" style="width: 300px;">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputUnit">Unit</label>
+                <div class="controls">
+                    <select data-bind="options: $root.availableUnits, value: unit, optionsText: 'unitName', optionsValue: 'val'" style="width: 300px;"></select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputAmount">Amount</label>
+                <div class="controls">
+                    <input data-bind="value: amount" type="text" id="inputAmount" placeholder="Amount" style="width: 300px;">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputGroup">Group</label>
+                <div class="controls">
+                    <!--<input data-bind="value: group" type="text" id="inputGroup" placeholder="Group" style="width: 300px;">-->
+                    <select data-bind="options: $root.availableGroups, value: group, optionsText: 'groupName', optionsValue: 'groupName'" style="width: 300px;"></select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputVnr">Vnr</label>
+                <div class="controls">
+                    <input data-bind="value: vnr" type="text" id="inputVnr" placeholder="Vnr" style="width: 300px;">
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <label class="checkbox">
+                        <input data-bind="checked: checked" type="checkbox"> checked
+                    </label>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button data-bind="click:editTask" class="btn btn-primary">Update Task</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+    </div>
+</div>
+<div id="editprice" class="modal hide fade" tabindex="=1" role="dialog" aria-labelledby="editDialogLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="editDialogLabel">Edit Item Price</h3>
+    </div>
+    <div class="modal-body">
+        <div class="panel panel-warning">
+            <div class="panel-heading">
+                <h2 class="panel-title" data-bind="text: name"></h2>
+            </div>
+            <form class="form-horizontal">
+            <!-- ko foreach: stores -->
+            <div class="control-group">
+                <label class="control-label" for="inputPrice">Price</label>
+                <div class="controls">
+                    <input data-bind="value: price" type="number" id="inputPrice" placeholder="price" style="width: 150px;">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputPrice_per_unit">Price Per</label>
+                <div class="controls">
+                    <input data-bind="value: price_per_unit" type="number" id="inputPrice_per_unit" placeholder="price_per_unit" style="width: 150px;">
+                </div>
+            </div>
+            <p scope="row" data-bind="text: store_id"></p>
+            <p data-bind="text: price_per_unit"></p>
+            <p data-bind="text: date_mod"></p>
+            <p data-bind="text: user_id"></p>
+            <p data-bind="text: discount"></p>
+            <!-- /ko -->
+                </form>
+        </div>
+    </div>
+    <form class="form-horizontal">
+        <div class="control-group">
+            <label class="control-label" for="inputItem">Item</label>
+            <div class="controls">
+                <input data-bind="value: name" type="text" id="inputItem" placeholder="Item name" style="width: 150px;">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="inputDescription">Description</label>
+            <div class="controls">
+                <input data-bind="value: description" type="text" id="inputDescription" placeholder="Description" style="width: 300px;">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="inputBarcode">Barcode</label>
+            <div class="controls">
+                <input data-bind="value: barcode" type="number" id="inputBarcode" placeholder="Barcode" style="width: 300px;">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="inputUnit">Unit</label>
+            <div class="controls">
+                <select data-bind="options: $root.availableUnits, value: unit, optionsText: 'unitName', optionsValue: 'val'" style="width: 300px;"></select>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="inputAmount">Amount</label>
+            <div class="controls">
+                <input data-bind="value: amount" type="text" id="inputAmount" placeholder="Amount" style="width: 300px;">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="inputGroup">Group</label>
+            <div class="controls">
+                <!--<input data-bind="value: group" type="text" id="inputGroup" placeholder="Group" style="width: 300px;">-->
+                <select data-bind="options: $root.availableGroups, value: group, optionsText: 'groupName', optionsValue: 'groupName'" style="width: 300px;"></select>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="inputVnr">Vnr</label>
+            <div class="controls">
+                <input data-bind="value: vnr" type="text" id="inputVnr" placeholder="Vnr" style="width: 300px;">
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <label class="checkbox">
+                    <input data-bind="checked: checked" type="checkbox"> checked
+                </label>
+            </div>
+        </div>
+    </form>
+<div class="modal-footer">
+    <button data-bind="click:editTask" class="btn btn-primary">Update Task</button>
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+</div>
+</div>
+<script type="text/javascript">
+    function TasksViewModel() {
+        var self = this;
+        self.tasksURI = 'http://localhost:5000/api/v2/item';
+        self.username = "foo";
+        self.password = "bar";
+        self.items = ko.observableArray();
+
+        self.ajax = function(uri, method, data) {
+            var request = {
+                url: uri,
+                type: method,
+                contentType: "application/json",
+                accepts: "application/json",
+                cache: false,
+                dataType: 'json',
+                data: JSON.stringify(data),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Authorization",
+                            "Basic " + btoa(self.username + ":" + self.password));
+                },
+                error: function(jqXHR) {
+                    console.log("ajax error " + jqXHR.status);
+                }
+            };
+            return $.ajax(request);
+        }
+
+
+        self.updateTask = function(item, newItem) {
+            var i = self.items.indexOf(item);
+            console.log(item);
+            console.log(newItem);
+            //self.items()[i].uri(newItem.uri);
+            self.items()[i].name(newItem.name);
+            self.items()[i].description(newItem.description);
+            self.items()[i].checked(newItem.checked);
+            self.items()[i].vnr(newItem.vnr);
+            self.items()[i].barcode(newItem.barcode);
+            self.items()[i].amount(newItem.amount);
+            self.items()[i].group(newItem.group);
+            self.items()[i].unit(newItem.unit);
+        }
+
+        self.beginAdd = function() {
+            $('#add').modal('show');
+        }
+
+        self.add = function(item) {
+            self.ajax(self.tasksURI, 'POST', item).done(function(data) {
+                self.items.push({
+                    uri: ko.observable(data.uri),
+                    name: ko.observable(data.name),
+                    description: ko.observable(data.description),
+                    checked: ko.observable(data.checked),
+                    unit: ko.observable(data.unit),
+                    barcode: ko.observable(data.barcode),
+                    amount: ko.observable(data.amount),
+                    group: ko.observable(data.group),
+                    vnr: ko.observable(data.vnr),
+                    stores: ko.observable(data.stores)
+                });
+            });
+        }
+
+        self.beginPriceEdit = function(item) {
+            editPriceViewModel.setTask(item);
+            $('#editprice').modal('show');
+        }
+
+        self.priceEdit = function(item, data) {
+            self.ajax(item.uri(), 'PUT', data).done(function(res) {
+                self.updateTask(item, res);
+            });
+        }
+
+        self.beginEdit = function(item) {
+            editTaskViewModel.setTask(item);
+            $('#edit').modal('show');
+        }
+        self.edit = function(item, data) {
+            self.ajax(item.uri(), 'PUT', data).done(function(res) {
+                self.updateTask(item, res);
+            });
+        }
+        self.remove = function(item) {
+            self.ajax(item.uri(), 'DELETE').done(function() {
+                self.items.remove(item);
+            });
+        }
+        self.markUnchecked = function(item) {
+            self.ajax(item.uri(), 'PUT', { checked: false }).done(function(res) {
+                self.updateTask(item, res);
+            });
+        }
+        self.markchecked = function(item) {
+            self.ajax(item.uri(), 'PUT', { checked: true }).done(function(res) {
+                self.updateTask(item, res);
+            });
+        }
+
+        self.ajax(self.tasksURI, 'GET').done(function(data) {
+            for (var i = 0; i < data.items.length; i++) {
+                for (var x = 0; x < data.items[i].stores.length; x++){
+                    //console.log("price" + data.items[i].stores[x].price);
+                    //console.log("store" + data.items[i].stores[x].store_id);
+                    //console.log("mod:" + data.items[i].stores[x].date_mod);
+                    //console.log(self.storeIdToString(data.items[i].stores[x].store_id));
+                }
+                self.items.push({
+                    uri: ko.observable(data.items[i].uri),
+                    name: ko.observable(data.items[i].name),
+                    description: ko.observable(data.items[i].description),
+                    group: ko.observable(data.items[i].group),
+                    unit: ko.observable(data.items[i].unit),
+                    amount: ko.observable(data.items[i].amount),
+                    barcode: ko.observable(data.items[i].barcode),
+                    vnr: ko.observable(data.items[i].vnr),
+                    stores:ko.observable(data.items[i].stores),
+                    checked: ko.observable(data.items[i].checked),
+                    done: ko.observable(data.items[i].checked)
+                });
+            }
+        });
+
+        self.storeIdToString = function(store_id){
+            // We are gonna get a number and return a string.
+            if(store_id == 1){
+                return "Krónan"
+            }
+            if(store_id == 2){
+                return "Hagkaup"
+            }
+            if(store_id == 3){
+                return "Bónus"
+            }
+            if(store_id == 4){
+                return "Netto"
+            }
+            if(store_id == 5){
+                return "Iceland"
+            }
+            if(store_id == 6){
+                return "Víðir"
+            }
+            if(store_id == 7){
+                return "FJARÐARKAUP"
+            }
+            if(store_id == 8){
+                return "Kostur"
+            }
+            if(store_id == 9){
+                return "Nóatún"
+            }
+            if(store_id == 10){
+                return "10-11"
+            }
+            if(store_id == 11){
+                return "Kjarval"
+            }
+            if(store_id == 12){
+                return "KASKO"
+            }
+            return "UNK?" + store_id
+        };
+
+        self.unitToString = function(input_unit){
+            // Take a unit number and set it to it's defined value
+            if(input_unit == 1){
+                return "kr/stk"
+            }
+            if(input_unit == 2){
+                return "kr/kg"
+            }
+            if(input_unit == 3){
+                return "kr/l"
+            }
+            return "kr?"
+        };
+    }
+    function AddItemViewModel() {
+        var self = this;
+        self.name = ko.observable();
+        self.description = ko.observable();
+        self.barcode = ko.observable();
+        self.unit = ko.observable();
+        self.amount = ko.observable();
+        self.vnr = ko.observable();
+        self.group = ko.observable();
+        self.stores = ko.observable();
+
+        self.addTask = function() {
+            $('#add').modal('hide');
+            tasksViewModel.add({
+                name: self.name(),
+                description: self.description(),
+                barcode: parseInt(self.barcode()),
+                unit: self.unit(),
+                amount: parseFloat(self.amount()),
+                vnr: self.vnr(),
+                group: self.group(),
+                stores: self.stores()
+            });
+            self.name("");
+            self.description("");
+            self.barcode(0);
+            self.unit(1);
+            self.amount(1);
+            self.group("");
+            self.vnr("");
+            self.stores({});
+        }
+
+        // Non-editable unit format
+        self.availableUnits = [
+            { unitName: "kr / stk", val: 1 },
+            { unitName: "kr / kg", val: 2 },
+            { unitName: "kr / l", val: 3 }
+        ];
+
+        // Non-editable group selection.
+        self.availableGroups = [
+            {groupName: "álegg"},
+            {groupName: "ávextir"},
+            {groupName: "bakkelsi"},
+            {groupName: "barnamatur"},
+            {groupName: "bruaðmeti"},
+            {groupName: "vitamin"},
+            {groupName: "drykkir"},
+            {groupName: "grunnvörur"},
+            {groupName: "grænmeti"},
+            {groupName: "hnetur&fræ"},
+            {groupName: "kaffi&te"},
+            {groupName: "kex"},
+            {groupName: "kjöt"},
+            {groupName: "krydd"},
+            {groupName: "mjolkurvorur"},
+            {groupName: "morgunmatur"},
+            {groupName: "dósir"},
+            {groupName: "grjón"},
+            {groupName: "olíur"},
+            {groupName: "pasta"},
+            {groupName: "fiskur"},
+            {groupName: "snakk"},
+            {groupName: "sósur"},
+            {groupName: "sulur"},
+            {groupName: "súpur"},
+            {groupName: "nammi"},
+            {groupName: "Þurkaðarvörur"}
+
+        ];
+    }
+    function EditTaskViewModel() {
+        var self = this;
+        self.name = ko.observable();
+        self.description = ko.observable();
+        self.barcode = ko.observable();
+        self.unit = ko.observable();
+        self.amount = ko.observable();
+        self.vnr = ko.observable();
+        self.group = ko.observable();
+        self.stores = ko.observable();
+        self.checked = ko.observable();
+        self.uri = ko.observable();
+
+        self.setTask = function(item) {
+            self.item = item;
+            self.name(item.name());
+            self.description(item.description());
+            self.checked(item.checked());
+            self.uri(item.uri());
+            self.barcode(item.barcode());
+            self.unit(item.unit());
+            self.group(item.group());
+            self.vnr(item.vnr());
+            self.amount(item.amount());
+            $('edit').modal('show');
+        }
+
+        self.editTask = function() {
+            $('#edit').modal('hide');
+            tasksViewModel.edit(self.item, {
+                checked: self.checked(),
+                name: self.name(),
+                description: self.description(),
+                barcode: parseInt(self.barcode()),
+                unit: self.unit(),
+                amount: parseFloat(self.amount()),
+                vnr: self.vnr(),
+                group: self.group(),
+                stores: self.stores(),
+                uri: self.uri()
+            });
+        }
+        // Non-editable unit format
+        self.availableUnits = [
+            { unitName: "kr / stk", val: 1 },
+            { unitName: "kr / kg", val: 2 },
+            { unitName: "kr / l", val: 3 }
+        ];
+
+        // Non-editable group selection.
+        self.availableGroups = [
+            {groupName: "álegg"},
+            {groupName: "ávextir"},
+            {groupName: "bakkelsi"},
+            {groupName: "barnamatur"},
+            {groupName: "bruaðmeti"},
+            {groupName: "vitamin"},
+            {groupName: "drykkir"},
+            {groupName: "grunnvörur"},
+            {groupName: "grænmeti"},
+            {groupName: "hnetur&fræ"},
+            {groupName: "kaffi&te"},
+            {groupName: "kex"},
+            {groupName: "kjöt"},
+            {groupName: "krydd"},
+            {groupName: "mjolkurvorur"},
+            {groupName: "morgunmatur"},
+            {groupName: "dósir"},
+            {groupName: "grjón"},
+            {groupName: "olíur"},
+            {groupName: "pasta"},
+            {groupName: "fiskur"},
+            {groupName: "snakk"},
+            {groupName: "sósur"},
+            {groupName: "sulur"},
+            {groupName: "súpur"},
+            {groupName: "nammi"},
+            {groupName: "Þurkaðarvörur"}
+
+        ];
+    }
+
+    function EditPriceViewModel() {
+        var self = this;
+        self.name = ko.observable();
+        self.description = ko.observable();
+        self.barcode = ko.observable();
+        self.unit = ko.observable();
+        self.amount = ko.observable();
+        self.vnr = ko.observable();
+        self.group = ko.observable();
+        self.checked = ko.observable();
+        self.uri = ko.observable();
+        self.item = ko.observable();
+        self.stores = ko.observableArray();
+
+        self.setTask = function(item) {
+            console.log(item.stores());
+            self.item = item;
+            self.name(item.name());
+            self.description(item.description());
+            self.checked(item.checked());
+            self.uri(item.uri());
+            self.barcode(item.barcode());
+            self.unit(item.unit());
+            self.group(item.group());
+            self.vnr(item.vnr());
+            self.amount(item.amount());
+            self.stores(item.stores())
+            $('editprice').modal('show');
+        }
+
+
+
+        self.editTask = function() {
+            $('#editprice').modal('hide');
+            tasksViewModel.priceEdit(self.item, {
+                stores: self.stores(),
+                uri: self.uri()
+            });
+        }
+    }
+
+    self.remove = function(item) {
+            self.ajax(item.uri(), 'DELETE').done(function() {
+                self.items.remove(item);
+            });
+        }
+
+
+    var tasksViewModel = new TasksViewModel();
+    var addTaskViewModel = new AddItemViewModel();
+    var editTaskViewModel = new EditTaskViewModel();
+    var editPriceViewModel = new EditPriceViewModel();
+
+    ko.applyBindings(tasksViewModel, $('#main')[0]);
+    ko.applyBindings(addTaskViewModel, $('#add')[0]);
+    ko.applyBindings(editTaskViewModel, $('#edit')[0]);
+    ko.applyBindings(editPriceViewModel, $('#editprice')[0]);
+</script>
+</body>
+</html>

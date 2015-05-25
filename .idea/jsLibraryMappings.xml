@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavaScriptLibraryMappings">
+    <file url="PROJECT" libraries="{Knockout-2.2.1, bootstrap, jquery-1.9.0, knockout-2.2.1, knockout-2.2.1.debug}" />
+  </component>
+</project>

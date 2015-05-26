@@ -178,94 +178,46 @@
     </div>
 </div>
 <div id="editprice" class="modal hide fade" tabindex="=1" role="dialog" aria-labelledby="editDialogLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 id="editDialogLabel">Edit Item Price</h3>
-    </div>
-    <div class="modal-body">
-        <div class="panel panel-warning">
-            <div class="panel-heading">
-                <h2 class="panel-title" data-bind="text: name"></h2>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="editDialogLabel">Edit Item Price</h3>
+            </div>
+            <div class="modal-body">
+                <div class="panel-heading">
+                    <h6 data-bind="text: name"></h6>
+                </div>
+                <!-- ko foreach: stores -->
+                <hr>
+                <p><span data-bind="text: $root.storeIdToString(store_id)" class="label label-info"></span> <span class="label label-info" data-bind="text: date_mod"></span></p>
+                <form class="form-group">
+                    <div class="controls form-inline">
+                        <label for="inputStore_id">Id</label>
+                        <input class="input-small" data-bind="value: store_id" type="text" id="inputStore_id" placeholder="store_id">
+                        <label for="inputPrice">Price</label>
+                        <input data-bind="value: price" type="number" id="inputPrice" class="input-small" placeholder="price">
+                        <label for="inputPrice_per_unit">Price Per</label>
+                        <input class="input-small" data-bind="value: price_per_unit" type="number" id="inputPrice_per_unit" placeholder="price_per_unit">
+                    </div>
+                    <div class="controls form-inline">
+                        <label for="inputUser_id">User id</label>
+                        <input data-bind="value: user_id" type="text" id="inputUser_id" placeholder="user_id" style="width: 100px;">
+                        <label for="inputDiscount">Discount</label>
+                        <input data-bind="value: discount" type="number" id="inputDiscount" placeholder="Discount" style="width: 50px;">
+                    </div>
+                </form>
+                <!-- /ko -->
             </div>
             <form class="form-horizontal">
-            <!-- ko foreach: stores -->
-            <div class="control-group">
-                <label class="control-label" for="inputPrice">Price</label>
-                <div class="controls">
-                    <input data-bind="value: price" type="number" id="inputPrice" placeholder="price" style="width: 150px;">
-                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn" data-bind="click:addPrice">+</button>
+                <button data-bind="click:editTask" class="btn btn-primary">Update Task</button>
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="inputPrice_per_unit">Price Per</label>
-                <div class="controls">
-                    <input data-bind="value: price_per_unit" type="number" id="inputPrice_per_unit" placeholder="price_per_unit" style="width: 150px;">
-                </div>
-            </div>
-            <p scope="row" data-bind="text: store_id"></p>
-            <p data-bind="text: price_per_unit"></p>
-            <p data-bind="text: date_mod"></p>
-            <p data-bind="text: user_id"></p>
-            <p data-bind="text: discount"></p>
-            <!-- /ko -->
-                </form>
         </div>
     </div>
-    <form class="form-horizontal">
-        <div class="control-group">
-            <label class="control-label" for="inputItem">Item</label>
-            <div class="controls">
-                <input data-bind="value: name" type="text" id="inputItem" placeholder="Item name" style="width: 150px;">
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="inputDescription">Description</label>
-            <div class="controls">
-                <input data-bind="value: description" type="text" id="inputDescription" placeholder="Description" style="width: 300px;">
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="inputBarcode">Barcode</label>
-            <div class="controls">
-                <input data-bind="value: barcode" type="number" id="inputBarcode" placeholder="Barcode" style="width: 300px;">
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="inputUnit">Unit</label>
-            <div class="controls">
-                <select data-bind="options: $root.availableUnits, value: unit, optionsText: 'unitName', optionsValue: 'val'" style="width: 300px;"></select>
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="inputAmount">Amount</label>
-            <div class="controls">
-                <input data-bind="value: amount" type="text" id="inputAmount" placeholder="Amount" style="width: 300px;">
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="inputGroup">Group</label>
-            <div class="controls">
-                <!--<input data-bind="value: group" type="text" id="inputGroup" placeholder="Group" style="width: 300px;">-->
-                <select data-bind="options: $root.availableGroups, value: group, optionsText: 'groupName', optionsValue: 'groupName'" style="width: 300px;"></select>
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="inputVnr">Vnr</label>
-            <div class="controls">
-                <input data-bind="value: vnr" type="text" id="inputVnr" placeholder="Vnr" style="width: 300px;">
-            </div>
-        </div>
-        <div class="control-group">
-            <div class="controls">
-                <label class="checkbox">
-                    <input data-bind="checked: checked" type="checkbox"> checked
-                </label>
-            </div>
-        </div>
-    </form>
-<div class="modal-footer">
-    <button data-bind="click:editTask" class="btn btn-primary">Update Task</button>
-    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-</div>
 </div>
 <script type="text/javascript">
     function TasksViewModel() {
@@ -298,8 +250,6 @@
 
         self.updateTask = function(item, newItem) {
             var i = self.items.indexOf(item);
-            console.log(item);
-            console.log(newItem);
             //self.items()[i].uri(newItem.uri);
             self.items()[i].name(newItem.name);
             self.items()[i].description(newItem.description);
@@ -309,6 +259,7 @@
             self.items()[i].amount(newItem.amount);
             self.items()[i].group(newItem.group);
             self.items()[i].unit(newItem.unit);
+            self.items()[i].stores(newItem.stores);
         }
 
         self.beginAdd = function() {
@@ -332,16 +283,17 @@
             });
         }
 
+        self.editPrice = function(item, data) {
+            self.ajax(data.uri, 'PUT', data).done(function(res) {
+                self.updateTask(item, res);
+            });
+        }
+
         self.beginPriceEdit = function(item) {
             editPriceViewModel.setTask(item);
             $('#editprice').modal('show');
         }
 
-        self.priceEdit = function(item, data) {
-            self.ajax(item.uri(), 'PUT', data).done(function(res) {
-                self.updateTask(item, res);
-            });
-        }
 
         self.beginEdit = function(item) {
             editTaskViewModel.setTask(item);
@@ -548,6 +500,7 @@
 
         self.editTask = function() {
             $('#edit').modal('hide');
+
             tasksViewModel.edit(self.item, {
                 checked: self.checked(),
                 name: self.name(),
@@ -616,37 +569,116 @@
         self.stores = ko.observableArray();
 
         self.setTask = function(item) {
-            console.log(item.stores());
+            //console.log(item.stores());
+            //console.log(item)
             self.item = item;
             self.name(item.name());
             self.description(item.description());
             self.checked(item.checked());
-            self.uri(item.uri());
+            self.uri(item.uri().replace("item", "price"));
             self.barcode(item.barcode());
             self.unit(item.unit());
             self.group(item.group());
             self.vnr(item.vnr());
             self.amount(item.amount());
             self.stores(item.stores())
+            //console.log(self.uri());
             $('editprice').modal('show');
         }
 
 
+        self.addPrice = function(item) {
+            //console.log(item.stores());
+            //console.log(self.stores()[0]);
+            var storeidtmp = 0;
+            self.stores.push({
+                date_mod:"blank",
+                discount: 0,
+                price: 0,
+                price_per_unit: 0,
+                store_id: String(storeidtmp),
+                user_id:"0"
+            });
+            console.log(self.stores());
+            //$('#editprice').modal('hide');
+            //self.stores.push({
+            //});
+            //tasksViewModel.priceEdit(self.item, {
+            //    stores: self.stores(),
+            //    uri: self.uri()
+            //});
+        };
+
 
         self.editTask = function() {
             $('#editprice').modal('hide');
-            tasksViewModel.priceEdit(self.item, {
+            console.log(self.stores());
+            // Check for parsing bullshit
+            for (var x = 0; x < self.stores().length; x++){
+                console.log(self.stores().length);
+                self.stores()[x].price = parseInt(self.stores()[x].price);
+                self.stores()[x].price_per_unit = parseInt(self.stores()[x].price_per_unit);
+                //console.log("price" + data.items[i].stores[x].price);
+                //console.log("store" + data.items[i].stores[x].store_id);
+                //console.log("mod:" + data.items[i].stores[x].date_mod);
+                //console.log(self.storeIdToString(data.items[i].stores[x].store_id));
+            }
+            tasksViewModel.editPrice(self.item, {
                 stores: self.stores(),
                 uri: self.uri()
             });
         }
+
+        self.storeIdToString = function(store_id){
+            if (null == store_id){
+                return ""
+            }
+            // We are gonna get a number and return a string.
+            if(store_id == 1){
+                return "Krónan"
+            }
+            if(store_id == 2){
+                return "Hagkaup"
+            }
+            if(store_id == 3){
+                return "Bónus"
+            }
+            if(store_id == 4){
+                return "Netto"
+            }
+            if(store_id == 5){
+                return "Iceland"
+            }
+            if(store_id == 6){
+                return "Víðir"
+            }
+            if(store_id == 7){
+                return "FJARÐARKAUP"
+            }
+            if(store_id == 8){
+                return "Kostur"
+            }
+            if(store_id == 9){
+                return "Nóatún"
+            }
+            if(store_id == 10){
+                return "10-11"
+            }
+            if(store_id == 11){
+                return "Kjarval"
+            }
+            if(store_id == 12){
+                return "KASKO"
+            }
+            return "UNK?" + store_id
+        };
     }
 
     self.remove = function(item) {
-            self.ajax(item.uri(), 'DELETE').done(function() {
-                self.items.remove(item);
-            });
-        }
+        self.ajax(item.uri(), 'DELETE').done(function() {
+            self.items.remove(item);
+        });
+    }
 
 
     var tasksViewModel = new TasksViewModel();

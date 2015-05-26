@@ -96,10 +96,19 @@ def create_item():
         'group': request.json.get('group', ""),
         'unit': request.json.get('unit', ""),
         'amount': request.json.get('amount', ""),
-        'stores': request.json.get('stores', {}),
+        'stores': request.json.get('stores', []),
         'vnr': request.json.get('vnr', ""),
         'checked': False
     }
+
+    # TODO: FIX THIS BULLSHIT STOPGAP !
+    new_store_data = [{"store_id": "1",
+                              "discount": 0,
+                              "user_id": "99",
+                              "price": 0,
+                              "price_per_unit": 0,
+                              "date_mod": str(datetime.datetime.utcnow())}]
+    item['stores'] = new_store_data
     # Set the time of insertion
     for stores in item['stores']:
         stores['date_mod'] = datetime.datetime.utcnow()
@@ -227,6 +236,7 @@ def get_prices(item_id):
 def update_price(item_id):
     item = [item for item in items if item['id'] == item_id]
     print(item[0])
+    print(request.json)
     print("FOR TEST")
     if len(item) == 0:
         abort(404)

@@ -36,7 +36,7 @@
                 <p title="vnr" data-bind="text: vnr" class="label label-info"></p>
             </td>
             <td data-bind="foreach: stores" >
-                <p><span data-bind="text: $root.storeIdToString(store_id) + ' ' + price_per_unit" class="label label-info"></span><!--<span data-bind="text: price_per_unit"></span>
+                <p><span data-bind="text: storeIdToString(store_id) + ' ' + price_per_unit" class="label label-info"></span><!--<span data-bind="text: price_per_unit"></span>
                     <span data-bind="text: $root.unitToString($parent.unit())" class="label label-info"></span>--></p>
             </td>
             <td>
@@ -190,7 +190,7 @@
                 </div>
                 <!-- ko foreach: stores -->
                 <hr>
-                <p><span data-bind="text: $root.storeIdToString(store_id)" class="label label-info"></span> <span class="label label-info" data-bind="text: date_mod"></span></p>
+                <p><span data-bind="text: storeIdToString(store_id)" class="label label-info"></span> <span class="label label-info" data-bind="text: date_mod"></span></p>
                 <form class="form-group">
                     <div class="controls form-inline">
                         <label for="inputStore_id">Id</label>
@@ -343,47 +343,6 @@
                 });
             }
         });
-
-        self.storeIdToString = function(store_id){
-            // We are gonna get a number and return a string.
-            if(store_id == 1){
-                return "Krónan"
-            }
-            if(store_id == 2){
-                return "Hagkaup"
-            }
-            if(store_id == 3){
-                return "Bónus"
-            }
-            if(store_id == 4){
-                return "Netto"
-            }
-            if(store_id == 5){
-                return "Iceland"
-            }
-            if(store_id == 6){
-                return "Víðir"
-            }
-            if(store_id == 7){
-                return "FJARÐARKAUP"
-            }
-            if(store_id == 8){
-                return "Kostur"
-            }
-            if(store_id == 9){
-                return "Nóatún"
-            }
-            if(store_id == 10){
-                return "10-11"
-            }
-            if(store_id == 11){
-                return "Kjarval"
-            }
-            if(store_id == 12){
-                return "KASKO"
-            }
-            return "UNK?" + store_id
-        };
 
         self.unitToString = function(input_unit){
             // Take a unit number and set it to it's defined value
@@ -628,8 +587,9 @@
                 uri: self.uri()
             });
         }
+    }
 
-        self.storeIdToString = function(store_id){
+    self.storeIdToString = function(store_id){
             if (null == store_id){
                 return ""
             }
@@ -672,11 +632,10 @@
             }
             return "UNK?" + store_id
         };
-    }
 
     self.remove = function(item) {
         self.ajax(item.uri(), 'DELETE').done(function() {
-            self.items.remove(item);
+            self.items.ælremove(item);
         });
     }
 

@@ -11,6 +11,9 @@
     <orderEntry type="library" name="knockout-2.2.1.debug" level="application" />
     <orderEntry type="library" name="Knockout-2.2.1" level="application" />
     <orderEntry type="library" name="knockout-2.2.1" level="application" />
+    <orderEntry type="library" name="jquery-1.9.0" level="application" />
+    <orderEntry type="library" name="bootstrap" level="application" />
+    <orderEntry type="library" name="knockout-2.2.1.debug" level="application" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />
